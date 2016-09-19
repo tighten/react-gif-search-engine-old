@@ -6,7 +6,17 @@ export default function(WrappedComponent) {
   class Auth extends React.Component {
     componentWillMount() {
       if (!this.props.authenticated) {
-        browserHistory.push('/login');
+        let hasLocalStorageUser = false;
+
+        for (let key in localStorage) {
+          if (key.startsWith("firebase:authUser:")) {
+            hasLocalStorageUser = true;
+          }
+        }
+
+        if (!hasLocalStorageUser) {
+          browserHistory.push('/login');
+        }
       }
     }
 
