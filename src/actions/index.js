@@ -49,16 +49,26 @@ export function unfavoriteGif({selectedGif}) {
 }
 
 export function fetchFavoritedGifs() {
-  return function(dispatch) {
-    const userUid = Firebase.auth().currentUser.uid;
-
-    Firebase.database().ref(userUid).on('value', snapshot => {
+  const fetchFavorites = (uid, dispatch) => {
+    Firebase.database().ref(uid).on('value', snapshot => {
       dispatch({
         type: FETCH_FAVORITED_GIFS,
         payload: snapshot.val()
-      })
+      });
     });
-  }
+  };
+
+  return function(dispatch) {
+    const userUid = Firebase.auth().currentUser && Firebase.auth().currentUser.uid;
+
+    if (userUid != null) {
+      fetchFavorites(userUid, dispatch);
+    } else {
+      Firebase.auth().onAuthStateChanged(user => {
+        fetchFavorites(user.uid, dispatch);
+      });
+    }
+  };
 }
 
 export function openModal(gif) {
